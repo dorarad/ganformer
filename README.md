@@ -1,2 +1,2 @@
-# ganformer
+# GANformer
 Generative Adversarial Transformers
