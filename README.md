@@ -28,7 +28,7 @@ In contrast to the classic transformer architecture, it utilizes multiplicative 
 
 **Paper**: [https://arxiv.org/pdf/2103.01209](https://arxiv.org/pdf/2103.01209)  
 **Contact**: dorarad@stanford.edu  
-**Implementation**: [`network.py`](https://github.com/dorarad/gansformer/training/network.py)
+**Implementation**: [`network.py`](https://github.com/dorarad/gansformer/tree/main/training/network.py)
 
 ### Update: All [code](https://github.com/dorarad/gansformer)! is now ready! 
 
