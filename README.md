@@ -1,3 +1,5 @@
+# Mirror of [github/dorarad/gansformer](github/dorarad/gansformer)
+
 [![PWC](https://img.shields.io/endpoint.svg?style=plastic&url=https://paperswithcode.com/badge/generative-adversarial-transformers/image-generation-on-clevr)](https://paperswithcode.com/sota/image-generation-on-clevr?p=generative-adversarial-transformers)
 [![PWC](https://img.shields.io/endpoint.svg?style=plastic&url=https://paperswithcode.com/badge/generative-adversarial-transformers/image-generation-on-cityscapes)](https://paperswithcode.com/sota/image-generation-on-cityscapes?p=generative-adversarial-transformers)
 [![PWC](https://img.shields.io/endpoint.svg?style=plastic&url=https://paperswithcode.com/badge/generative-adversarial-transformers/image-generation-on-lsun-bedroom-256-x-256)](https://paperswithcode.com/sota/image-generation-on-lsun-bedroom-256-x-256?p=generative-adversarial-transformers)
