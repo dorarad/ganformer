@@ -5,14 +5,13 @@
 ![cuDNN 7.3.1](https://img.shields.io/badge/cuda-10.0-2545e6.svg?style=plastic)
 ![License CC BY-NC](https://img.shields.io/badge/license-MIT-108a00.svg?style=plastic)
 
+
 # GANformer: Generative Adversarial Transformers
 <p align="center">
-  <b><a href="https://cs.stanford.edu/~dorarad/">Drew A. Hudson</a>* & <a href="http://larryzitnick.org/">C. Lawrence Zitnick</a></b>
+  <b><a href="https://cs.stanford.edu/~dorarad/">Drew A. Hudson</a> & <a href="http://larryzitnick.org/">C. Lawrence Zitnick</a></b>
 </p>
 
 ## Check out our new [PyTorch](pytorch_version) version and the [GANformer2 paper](https://arxiv.org/abs/2111.08960)!
-
-*_I wish to thank [Christopher D. Manning](https://nlp.stanford.edu/~manning/) for the fruitful discussions and constructive feedback in developing the Bipartite Transformer, especially when explored within the language representation area, as well as for providing the kind financial support that allowed this work to happen!_ :sunflower:
 
 <div align="center">
   <img src="https://cs.stanford.edu/people/dorarad/image1.png" style="float:left" width="340px">
@@ -20,10 +19,11 @@
 </div>
 <p></p>
 
+***Update (Feb 21, 2022):*** *We updated the weight initialization of the PyTorch version to the intended scale, leading to a substantial improvement in the model's learning speed!*
+
 This is an implementation of the [GANformer](https://arxiv.org/pdf/2103.01209.pdf) model, a novel and efficient type of transformer, explored for the task of image generation. The network employs a _bipartite structure_ that enables long-range interactions across the image, while maintaining computation of linearly efficiency, that can readily scale to high-resolution synthesis. 
 The model iteratively propagates information from a set of latent variables to the evolving visual features and vice versa, to support the refinement of each in light of the other and encourage the emergence of compositional representations of objects and scenes. 
 In contrast to the classic transformer architecture, it utilizes multiplicative integration that allows flexible region-based modulation, and can thus be seen as a generalization of the successful StyleGAN network.
-
 
 <img align="right" src="https://cs.stanford.edu/people/dorarad/img3.png" width="270px">
 
@@ -39,11 +39,10 @@ In contrast to the classic transformer architecture, it utilizes multiplicative 
 :white_check_mark: Training and data-prepreation intructions  
 :white_check_mark: Pretrained networks for all datasets  
 :white_check_mark: Extra visualizations and evaluations  
+:white_check_mark: Providing models trained for longer  
 :white_check_mark: Releasing the PyTorch version  
-⬜️ Releasing the GANformer2 model  
-⬜️ Providing models trained for longer  
-⬜️ Releasing pre-trained models for high-resolutions (up to 1024 x 1024)  
-⬜️ Adding support for conditional image generation (will be added soon!)
+:white_check_mark: Releasing pre-trained models for high-resolutions (up to 1024 x 1024)  
+⬜️ Releasing the GANformer2 model (supporting layout generation and conditional layout2image generation) (coming soon!)
 
 If you experience any issues or have suggestions for improvements or extensions, feel free to contact me either thourgh the issues page or at dorarad@stanford.edu. 
 
@@ -81,17 +80,26 @@ Using the pre-trained models (generated after training for ***5-7x*** less steps
 - See [`requirements.txt`](requirements.txt) ([TF](requirements.py) / [Pytorch](pytorch_version/requirements.py)) for the required python packages and run `pip install -r requirements.txt` to install them.
 
 ## Quickstart & Overview
-Our repository supports both **Tensorflow** (at the main directory) and **Pytorch** (at [`pytorch_version`](pytorch_version)). The two implementations follow a close code and files structure, and share the same interface. To switch from the TF to Pytorch, simply enter into the [`pytorch_version`](pytorch_version)), and install the [requirements](pytorch_version/requirements.txt).
+Our repository supports both **Tensorflow** (at the main directory) and **Pytorch** (at [`pytorch_version`](pytorch_version)). The two implementations follow a close code and files structure, and share the same interface. To switch from the TF to Pytorch, simply enter into [`pytorch_version`](pytorch_version)), and install the [requirements](pytorch_version/requirements.txt).
 Please feel free to open an issue or [contact](dorarad@cs.stanford.edu) for any questions or suggestions about the new implementation!
 
 A minimal example of using a pre-trained GANformer can be found at [`generate.py`](generate.py) ([TF](generate.py) / [Pytorch](pytorch_version/generate.py)). When executed, the 10-lines program downloads a pre-trained modle and uses it to generate some images:
 ```python
 python generate.py --gpus 0 --model gdrive:bedrooms-snapshot.pkl --output-dir images --images-num 32
 ```
-You can use `--truncation-psi` to control the generated images quality/diversity trade-off.  
-We recommend setting it to values in the range of `0.6-1.0`.
+**You can use `--truncation-psi` to control the generated images quality/diversity trade-off.  
+We recommend trying out different values in the range of `0.6-1.0`.**
 
-We currently provide pretrained models for resolution 256&times;256 but keep training them and will release newer checkpoints as well as pretrained models for resolution 1024&times;1024 soon!
+### Pretrained models and High resolutions
+We provide pretrained models for resolution 256&times;256 for all datasets, as well as 1024&times;1024 for FFHQ and 1024&times;2048 for Cityscapes.
+
+To generate images for the high-resolution models, run the following commands:
+(We reduce their batch-size to 1 so that they can load onto a single GPU)
+
+```python
+python generate.py --gpus 0 --model gdrive:ffhq-snapshot-1024.pkl --output-dir ffhq_images --images-num 32 --batch-size 1
+python generate.py --gpus 0 --model gdrive:cityscapes-snapshot-2048.pkl --output-dir cityscapes_images --images-num 32 --batch-size 1 --ratio 0.5 # 1024 x 2048 cityscapes currently supported in the TF version only
+```
 
 We can train and evaluate new or pretrained model both quantitatively and qualitative with [`run_network.py`](run_network.py) ([TF](run_network.py) / [Pytorch](pytorch_version/run_network.py)).  
 The model architecutre can be found at [`network.py`](training/network.py) ([TF](training/network.py) / [Pytorch](pytorch_version/training/network.py)). The training procedure is implemented at [`training_loop.py`](training/training_loop.py) ([TF](training/training_loop.py) / [Pytorch](pytorch_version/training/training_loop.py)).
@@ -143,16 +151,16 @@ We provide pretrained models for `bedrooms`, `cityscapes`, `clevr` and `ffhq`.
 
 To train a GANformer in its default configuration form scratch:
 ```python
-python run_network.py --train --gpus 0 --ganformer-default --expname clevr-scratch --dataset clevr
+python run_network.py --train --gpus 0 --ganformer-default --expname clevr-scratch --dataset clevr --eval-images-num 10000
 ```
 
 By defualt, models training is resumed from the latest snapshot. Use `--restart` to strat a new experiment, or `--pretrained-pkl` to select a particular snapshot to load.
 
-For comparing to state-of-the-art, we compute metric scores using 50,000 sample imaegs. To expedite training though, we recommend settings `--eval-images-num` to a lower number. Note though that this can impact the precision of the metrics, so we recommend using a lower value during training, and increasing it back up in the final evaluation.
+For comparing to state-of-the-art, we compute metric scores using 50,000 sample imaegs. To expedite training though, we recommend setting `--eval-images-num` to a lower number. Note though that this can impact the precision of the metrics, so we recommend using a lower value during training, and increasing it back up in the final evaluation.
 
 We support a large variety of command-line options to adjust the model, training, and evaluation. Run `python run_network.py -h` for the full list of options!
 
-we recommend exploring different values for `--gamma` when training on new datasets. If you train on resolution >= 512 and observe OOM issues, consider reducing `--minibatch-size` to a lower value.
+we recommend exploring different values for `--gamma` when training on new datasets. If you train on resolution >= 512 and observe OOM issues, consider reducing `--batch-gpu` to a lower value.
 
 ### Logging
 * During training, sample images and attention maps will be generated and stored at `results/<expname>-<run-id>` (`--keep-samples`).
@@ -179,13 +187,14 @@ Add `--pretrained-pkl gdrive:<dataset>-snapshot.pkl` to evalute a pretrained mod
 Below we provide the FID-50k scores for the GANformer (_using the pretrained checkpoints above_) as well as baseline models.  
 Note that these scores are different than the scores reported in the StyleGAN2 paper since they run experiments for up to 7x more training steps (5k-15k kimg-steps in our experiments over all models, which takes about 3-4 days with 4 GPUs, vs 50-70k kimg-steps in their experiments, which take over 90 GPU-days).
 
+**Note regarding Generator/Discriminator**: Following ablation experiments, we observed that incorporating the simplex and duplex attention to the generator (rather than to both the generator and discriminator) improve the models' performance. Accordingly, we are releasing pretrained models that incorporate attention to the generator only. We will update the paper's manuscript to reflect these findings!
+
 | Model          | CLEVR        | LSUN-Bedroom | FFHQ       | Cityscapes |
 | :------------: | :----------: | :----------: | :--------: | :--------: |
 | **GAN**        | 25.02        | 12.16        | 13.18      | 11.57      |
 | **kGAN**       | 28.28        | 69.9         | 61.14      | 51.08      |
 | **SAGAN**      | 26.04        | 14.06        | 16.21      | 12.81      |
 | **StyleGAN2**  | 16.05        | 11.53        | 16.21      | 8.35       |
-| **VQGAN**      | 32.60        | 59.63        | 63.12      | 173.80     |
 | **GANformer** | ***9.24***   | ***6.15***   | ***7.42*** | ***5.23*** |
 
 <div>
@@ -203,7 +212,7 @@ The global latent is useful for coordinating holistic aspects of the image such 
 ## Visualization
 The code supports producing qualitative results and visualizations. For instance, to create attention maps for each layer:
 ```python
-python run_network.py --gpus 0 --eval --expname clevr-exp --dataset clevr --vis-layer-maps
+python run_network.py --gpus 0 --vis --expname clevr-exp --dataset clevr --vis-layer-maps
 ```
 
 Below you can see sample images and attention maps produced by the GANformer:
@@ -281,6 +290,14 @@ nvcc test_nvcc.cu -o test_nvcc -run
 | GPU says hello.
 ```
 
+In the pytorch version, if you get the following repeating message:  
+"Failed to build CUDA kernels for upfirdn2d. Falling back to slow reference implementation"  
+make sure your cuda and pytorch versions match. If you have multiple CUDA installed, consider
+using setting ``CUDA_HOME`` to the matching one. E.g. 
+```python
+export CUDA_HOME=/usr/local/cuda-10.1
+```
+
 ## Architecture Overview
 The GANformer consists of two networks:
 
@@ -300,5 +317,7 @@ This codebase builds on top of and extends the great [StyleGAN2](https://github.
 
 The GANformer model can also be seen as a generalization of StyleGAN: while StyleGAN has one global latent vector that control the style of all image features globally, the GANformer has *k* latent vectors, that cooperate through attention to control regions within the image, and thereby better modeling images of multi-object and compositional scenes.
 
-If you have questions, comments or feedback, please feel free to contact me at dorarad@stanford.edu, Thank you! :)
+## Acknowledgement
+_I wish to thank Christopher D. Manning for the fruitful discussions and constructive feedback in developing the Bipartite Transformer, especially when explored within the language representation area, as well as for providing the kind financial support that allowed this work to happen!_ :sunflower:
 
+If you have questions, comments or feedback, please feel free to contact me at dorarad@cs.stanford.edu, Thank you! :)
